@@ -111,3 +111,6 @@ def test():
 for epoch in range(1, args.epochs + 1):
     train(epoch)
     test()
+
+
+model.save_state_dict('mytraining.pt')
