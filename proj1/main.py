@@ -4,6 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+import time
 from torchvision import datasets, transforms
 from torch.autograd import Variable
 
@@ -34,6 +35,9 @@ if args.cuda:
 
 
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
+
+
+start = time.time()
 train_loader = torch.utils.data.DataLoader(
     datasets.MNIST('../data', train=True, download=True,
                    transform=transforms.Compose([
@@ -48,6 +52,14 @@ test_loader = torch.utils.data.DataLoader(
                    ])),
     batch_size=args.test_batch_size, shuffle=True, **kwargs)
 
+end = time.time()
+timetaken =  (end - start) #seconds
+
+print("Loading samples:")
+print("Number of samples in training: %d" % len(train_loader.dataset))
+print("Number of samples in testing: %d" % len(test_loader.dataset))
+print("Total loading time taken: %.3fs" % timetaken)
+print("Total loading time per sample: %.10fs\n\n" % (timetaken/70000.0))
 
 class Net(nn.Module):
     def __init__(self):
@@ -74,8 +86,12 @@ if args.cuda:
 optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
 def train(epoch):
+    start = time.time()
+    total_training_time = 0 
     model.train()
     for batch_idx, (data, target) in enumerate(train_loader):
+
+        
         if args.cuda:
             data, target = data.cuda(), target.cuda()
         data, target = Variable(data), Variable(target)
@@ -85,11 +101,23 @@ def train(epoch):
         loss.backward()
         optimizer.step()
         if batch_idx % args.log_interval == 0:
-            print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-                epoch, batch_idx * len(data), len(train_loader.dataset),
-                100. * batch_idx / len(train_loader), loss.data[0]))
+            #print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+                #epoch, batch_idx * len(data), len(train_loader.dataset),
+                #100. * batch_idx / len(train_loader), loss.data[0]))
+
+            end = time.time()
+            time_per_b = end - start
+            start = time.time()
+            total_training_time += time_per_b
+    avg_time_per_batch = total_training_time/len(train_loader)
+    print("Batch size: %s" % args.batch_size)
+    print("Average time/batch: %ss" % avg_time_per_batch)
+    print("Average time/batch/sample: %.10fs" % (avg_time_per_batch / args.batch_size))
+    print("Total training time: %.10fs" % total_training_time)
+                
 
 def test():
+
     model.eval()
     test_loss = 0
     correct = 0
@@ -106,11 +134,48 @@ def test():
     print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
         test_loss, correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset)))
+    
 
+tot_train_time = 0
+tot_test_time = 0
 
 for epoch in range(1, args.epochs + 1):
+    tot_train_start = time.time()
+    print("Iteration %s...."%epoch)
+    start = time.time()
     train(epoch)
+    end = time.time()
+    tot_train_end = time.time()
+
+    tot_train_time += tot_train_end - tot_train_start
+
+    start = time.time()
     test()
+    end = time.time()
+    print("Total time taken for evaluation: %.10fs"%(end - start))
+    print("Average time per sample: %.10fs\n\n\n\n"%((end-start)/len(test_loader.dataset)))
+
+    tot_test_time += end - start
 
 
-model.save_state_dict('mytraining.pt')
+
+print("Total training time for %s iteratons: %.10fs"%(args.epochs, tot_train_time))
+
+tot_time_per_it = tot_train_time / args.epochs
+print("Average training time/iteration: %.10fs" % tot_time_per_it)
+
+tot_time_per_it_per_batch = tot_time_per_it / len(train_loader)
+print("Average training time/iteration/batch: %.10fs" % tot_time_per_it_per_batch)
+
+tot_time_per_it_per_batch_per_sample = tot_time_per_it_per_batch / args.batch_size
+print("Average training time/iteration/batch/sample: %.10fs\n\n" % tot_time_per_it_per_batch_per_sample)
+
+
+print("Total testing time for %s iteratons: %.10fs"%(args.epochs, tot_test_time))
+
+tot_time_per_it = tot_test_time / args.epochs
+print("Average testing time/iteration: %.10fs" % tot_time_per_it)
+
+tot_time_per_it_per_sample = tot_time_per_it / len(test_loader.dataset)
+print("Average testing time/iteration/sample: %.10fs" % tot_time_per_it_per_sample)
+
