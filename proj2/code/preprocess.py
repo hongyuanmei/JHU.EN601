@@ -14,11 +14,18 @@ def convert(raw_file, output_file, vocab_file):
       text = line["body"]
       text = text.lower()
       text = "".join(l for l in text if l not in string.punctuation)
-      output.write(text)
+      replaced_urls = []
+      for word in text.split():
+        if "http" in word or "www" in word:
+          replaced_urls.append("[URL]")
+        else:
+          replaced_urls.append(word)
+        
+      output.write(" ".join(replaced_urls))
     except:
       continue
 
-    vocab.update(text.split())
+    vocab.update(replaced_urls)
 
       
   vocab_file.write("\n".join(list(vocab)))
