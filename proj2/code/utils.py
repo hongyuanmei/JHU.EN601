@@ -1,18 +1,21 @@
 import numpy as np
 import pickle
 
+import Queue as Q
+
 dtype = np.float32
 
 def read_file_by_line(data_path):
     # read the given file line by line
-    f = open(data_path,'r')
-    data_list = []
-    while True:
-        line = f.readline()
-        if line == '':
-            break
-        data_list.append(line)
-    f.close()
+    with open(data_path,'r') as f:
+        data_list = f.read().splitlines()
+    #data_list = []
+    #while True:
+    #    line = f.readline()
+    #    if line == '':
+    #        break
+    #    data_list.append(line)
+    #f.close()
     return data_list
 
 def cat_sent(sents):
@@ -81,7 +84,7 @@ def get_data(corpus_path, vocab_path, context_path, mode, w):
     sents = cat_sent(sents)
     vocab_list = read_file_by_line(vocab_path)
     context_list = read_file_by_line(context_path)
-    print sents[-1], vocab_list[-1], context_list[-1]
+    #print sents[-1], vocab_list[-1], context_list[-1]
     #
     vocab_dict = list_to_dict(vocab_list)
     context_dict = list_to_dict(context_list)
@@ -92,4 +95,24 @@ def get_data(corpus_path, vocab_path, context_path, mode, w):
         word_emb = get_ppmi(sents, vocab_dict, context_dict, w)
     else:
         print "no such mode found"
-    return word_emb
+    return word_emb, vocab_dict, context_dict
+
+def get_neighbors(candidates, num, word_emb, vocab_dict):
+    neighbors = {}
+    for can in candidates:
+        neighbors[can] = []
+        vec_can = word_emb[vocab_dict[can], :]
+        q = Q.PriorityQueue(maxsize=num)
+        for pos_nei in vocab_dict:
+            vec_pos_nei = word_emb[vocab_dict[pos_nei], :]
+            cos_sim = np.dot(vec_can, vec_pos_nei) / np.sqrt(
+                np.sum(vec_can**2) * np.sum(vec_pos_nei**2)
+            )
+            q.put(
+                (-1.0*cos_sim, pos_nei)
+            )
+        while not q.empty():
+            neighbors[can].append(
+                q.get()[1]
+            )
+    return neighbors
