@@ -180,7 +180,7 @@ def train_hawkes_ctsm(input_train):
             )
             train_end = time.time()
             log_dict['tracked']['train_time'] = round(
-                (train_end - train_start)*log_dict['track_period'], 0
+                (train_end - train_start)*log_dict['track_period'], 3
             )
             #
             if step_train % 10 == 9:
@@ -872,7 +872,7 @@ def train_hawkesinhib_ctsm(input_train):
             )
             train_end = time.time()
             log_dict['tracked']['train_time'] = round(
-                (train_end - train_start)*log_dict['track_period'], 0
+                (train_end - train_start)*log_dict['track_period'], 3
             )
             #
             if step_train % 10 == 9:
@@ -1415,7 +1415,7 @@ def train_generalized_neural_hawkes_ctsm_time(
             train_end = time.time()
             #
             log_dict['tracked']['train_time'] = round(
-                (train_end - train_start)*log_dict['track_period'], 0
+                (train_end - train_start)*log_dict['track_period'], 3
             )
             #
             if step_train % 10 == 9:
@@ -1819,7 +1819,7 @@ def train_generalized_neural_hawkes_ctsm_time_DevIncludedSetting(
             train_end = time.time()
             #
             log_dict['tracked']['train_time'] = round(
-                (train_end - train_start)*log_dict['track_period'], 0
+                (train_end - train_start)*log_dict['track_period'], 3
             )
             #
             if step_train % 10 == 9:
@@ -2392,7 +2392,7 @@ def train_neural_hawkes_ctsm(input_train):
             train_end = time.time()
             #
             log_dict['tracked']['train_time'] = round(
-                (train_end - train_start)*log_dict['track_period'], 0
+                (train_end - train_start)*log_dict['track_period'], 3
             )
             #
             if step_train % 10 == 9:
@@ -2874,7 +2874,7 @@ def train_generalized_neural_hawkes_ctsm(
             train_end = time.time()
             #
             log_dict['tracked']['train_time'] = round(
-                (train_end - train_start)*log_dict['track_period'], 0
+                (train_end - train_start)*log_dict['track_period'], 3
             )
             #
             if step_train % 10 == 9:
@@ -3377,7 +3377,7 @@ def train_neural_hawkes_ctsm_time(input_train):
             train_end = time.time()
             #
             log_dict['tracked']['train_time'] = round(
-                (train_end - train_start)*log_dict['track_period'], 0
+                (train_end - train_start)*log_dict['track_period'], 3
             )
             #
             if step_train % 10 == 9:
