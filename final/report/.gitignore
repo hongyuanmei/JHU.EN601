@@ -1,0 +1,11 @@
+# ignore types
+*full.tex
+*.DS_Store
+*.bbl
+*.pdf 
+*.blg
+*.log
+*.aux
+*.log
+*.out
+*.synctex.gz
